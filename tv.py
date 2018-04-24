@@ -1,49 +1,79 @@
 from dy import *
 
 
-def crowds():
-    x = 0
-    i = 0
+def willing(m, n, k, p):
+    return (1 - m) * (1 + k * n ** 2) - p
 
-    mpai = 0
-    npai = 0
+
+def crowds(steps):
+    fig, (crowd, profit, surplus) = plt.subplots(3, figsize=(5, 8))
+    crowd.set_ylim(0, 1)
+    plt.grid(True)
+
+    i = 0
     mlast = 0
     nlast = 0
 
-    fig, (crowd, profit) = plt.subplots(2, figsize=(8, 6))
-    crowd.set_ylim(0, 1)
+    mpai, npai = 0, 0
+    ms = 0
+    ns = 0
 
-    plt.grid(True)
+    pai = []
+    sps = []
+    crd = []
+    t = []
 
-    while (abs(x - g(f(x, i), i)) > 0.001):
-        crowd.scatter(i, f(x, i), c='b')
+    while abs(m - mlast) > 0.001 and i < steps:
+        m = f(nlast, i)
+        n = g(mlast, i)
+        print("m: %.2f, n: %.2f" % (m, n))
+        crowd.scatter(i, m, c='b')
+        crowd.scatter(i, n, c='r')
 
-        mincrease = f(x, i) - mlast
+        mincrease = m - mlast
         mpai += mincrease * pm(i)
-        x = f(x, i)
-        mlast = x
-        print(mincrease)
+        ms += mincrease * willing(m, n, a, pm(i))
 
-        crowd.scatter(i, g(x, i), c='r')
-
-        nincrease = g(x, i) - nlast
-        # print(nincrease)
+        nincrease = n - nlast
         npai += nincrease * pn(i)
-        x = g(x, i)
-        nlast = x
+        ns += nincrease * willing(n, m, b, pn(i))
 
+        pai.append(mpai + npai)
+        t.append(i)
+        sps.append(ms + ns)
         profit.scatter(i, mpai, c='b')
         profit.scatter(i, npai, c='r')
         profit.scatter(i, mpai + npai, c='g')
 
-        # print(x)
+        surplus.scatter(i, ms, c='b')
+        surplus.scatter(i, ns, c='r')
+        surplus.scatter(i, ms + ns, c='g')
+
+        mlast = m
+        nlast = n
+
         i += 1
 
-    print("stop!" + str(x))
-    print(mpai)
-
+    print(pai[-1])
+    profit.plot(t, pai, c='r', alpha=0.7, linestyle='solid')
     plt.show()
 
 
+def cal_profit(steps):
+    i = 0
+    mlast, nlast = 0, 0
+    pai = 0
+    while i < steps:
+        m = f(nlast, i)
+        n = g(mlast, i)
+        pai += (m - mlast) * pm(i) + (n - nlast) * pn(i)
+        print("i:%d p:%.2f m:%.2f mlast:%.2f n:%.2f nlast:%.2f" % (i, pm(i), m, mlast, n, nlast))
+
+        mlast, nlast = m, n
+        i += 1
+    print("profit = %.4f" % (pai))
+
+
 if __name__ == '__main__':
-    crowds()
+    # crowds(13)
+    cal_profit(13)

@@ -4,16 +4,24 @@ import matplotlib.pyplot as plt
 
 a = 5
 # pm = 9 / 10
-b = 6
+b = 5
 # pn = 9 / 10
 
 
 def pm(i):
-    return 0.01
+    # return 0.9
+    p = [0.88, 0.85, 0.9, 0.92, 0.93, 0.94, 0.94, 0.94, 0.93, 0.82, 0.62, 0.5, 0.25]
+    # p = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.8, 0.9, 0.9, 0.8, 0.8, 0.5, 0.6]
+    p = [0.98, 0.93, 0.92, 0.96, 0.84, 0.99, 0.98, 0.91, 0.99, 0.87, 0.99, 0.06, 0.01]
+    return p[i]
 
 
 def pn(i):
-    return 0.01
+    # return 0.9
+    p = [0.88, 0.85, 0.9, 0.92, 0.93, 0.94, 0.94, 0.94, 0.93, 0.82, 0.62, 0.5, 0.25]
+    # p = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.6, 0.8, 0.9, 0.7, 0.9, 0.6]
+    p = [0.96, 0.88, 0.98, 0.82, 0.99, 0.98, 0.93, 0.97, 0.85, 0.85, 0.61, 0.99, 0.99]
+    return p[i]
 
 
 def f(x, i):
@@ -61,15 +69,26 @@ def two_sided():
 
     plt.show()
 
+def tttest():
+    fig = plt.figure()
+    fig, ax = plt.subplots(1, figsize=(8, 6))
+    # ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
 
-def curve():
-    x = 0
+    n = np.arange(0, 1, 0.0001)
+    m = 1 - pm(0) / (1 + a * n ** 2)
+    ax.plot(n, m)
 
+
+    plt.show()
+
+
+def curve(steps):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    plt.title('test')
     plt.grid(True)
 
     n = np.arange(0, 1, 0.005)
@@ -81,23 +100,30 @@ def curve():
     ax.plot(n, m)
 
     i = 0
-    while(x != g(f(x, i), i)):
-        ax.scatter(x, f(x, i))
-        ax.annotate('(%.2f, %.2f)' % (x, f(x, i)), xy = (x, f(x, i)), textcoords='data')
-        x = f(x, i)
+    mlast = 0
+    nlast = 0
+    m = f(nlast, i)
+    n = g(mlast, i)
 
-        ax.scatter(g(x, i), x)
-        ax.annotate('(%.2f, %.2f)' % (g(x, i), x), xy=(g(x, i), x), textcoords='data')
-        x = g(x, i)
-        print(x)
+    while(abs(m - mlast) > 0.01 and i < steps - 1):
+        ax.scatter(nlast, m)
+        ax.annotate('(%.2f, %.2f)' % (nlast, m), xy = (nlast, m), textcoords='data')
+
+        ax.scatter(n, mlast)
+        ax.annotate('(%.2f, %.2f)' % (n, mlast), xy=(n, mlast), textcoords='data')
+
+        mlast = m
+        nlast = n
+        m = f(nlast, i)
+        n = g(mlast, i)
         i += 1
-
-    print("stop!" + str(x))
+        print("m: %.2f, n: %.2f" % (m, n))
 
     plt.show()
 
 
-
 if __name__ == '__main__':
-    curve()
+    # curve(13)
     # two_sided()
+    # pic()
+    tttest()
