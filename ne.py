@@ -55,13 +55,14 @@ def func(Qc, Qj, ecj, ejc, Vc, Vj):
     Dj = Qj - Qj * pj / Vj
 
     res = solve([Qc * pc + Qc * ecj * pj - Vc * Dc - Vc * ejc * Dj, \
-                 Qj * pj + ejc * pc * Qj - Vj * Dj - ecj * Vj * Dc], [pc, pj])
+                 Qj * pj + Qj * ejc * pc - Vj * Dj - Vj * ecj * Dc], [pc, pj])
+    print("res: " + str(res))
     return res
 
 
 
 def res(Qc, Qj, Vc, Vj, ecj, ejc):
-    fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(4, 6))
+    fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(4, 10))
     pc_list = []
     pj_list = []
     qc_list = []
@@ -72,20 +73,21 @@ def res(Qc, Qj, Vc, Vj, ecj, ejc):
 
     for i in range(len(ecj)):
         res = func(Qc, Qj, ecj[i], ejc[i], Vc, Vj)
-        pc = (list)(res.values())[0]
-        pj = (list)(res.values())[1]
+
+        pc = res[symbols('pc')]
+        pj = res[symbols('pj')]
         print("pc: " + str((float)(pc)) + " pj: " + str((float)(pj)))
         pc_list.append(pc)
         pj_list.append(pj)
 
-        qc = Qc * (1 - pc / Vc) + ejc[i] * Qj * (1 - pj / Vj)
-        qj = Qj * (1 - pj / Vj) + ecj[i] * Qc * (1 - pc / Vc)
+        qc = max(Qc * (1 - pc / Vc) + ejc[i] * Qj * (1 - pj / Vj), 0)
+        qj = max(Qj * (1 - pj / Vj) + ecj[i] * Qc * (1 - pc / Vc), 0)
         print("qc: " + str((float)(qc)) + " qj: " + str((float)(qj)))
         qc_list.append(qc)
         qj_list.append(qj)
 
         paic = pc * qc
-        paij = pj * pj
+        paij = pj * qj
         pai = paic + paij
         print("c: " + str((float)(paic)) + " j: " + str((float)(paij)))
         paic_list.append(paic)
@@ -95,10 +97,14 @@ def res(Qc, Qj, Vc, Vj, ecj, ejc):
         print("pai: " + str((float)(pai)))
         print()
 
+
+    ax1.set_title("prices")
     ax1.plot(ecj, pc_list, c='r', alpha=0.7, linestyle='solid')
     ax1.plot(ecj, pj_list, c='b', alpha=0.7, linestyle='solid')
+    ax2.set_title("quantities")
     ax2.plot(ecj, qc_list, c='r', alpha=0.7, linestyle='solid')
     ax2.plot(ecj, qj_list, c='b', alpha=0.7, linestyle='solid')
+    ax3.set_title("profits")
     ax3.plot(ecj, paic_list, c='r', alpha=0.7, linestyle='solid')
     ax3.plot(ecj, paij_list, c='b', alpha=0.7, linestyle='solid')
     ax3.plot(ecj, pai_list, c='g', alpha=0.7, linestyle='solid')
@@ -107,21 +113,23 @@ def res(Qc, Qj, Vc, Vj, ecj, ejc):
 
 
 
-def main():
-    draw()
+# def main():
+#     draw()
 
 if __name__ == "__main__":
     # func(0, 0, 0, 0, 0, 0)
     Qc = 100 # 100, 10, 10, 60
-    Qj = 100
+    Qj = 90
     Vc = 10
-    Vj = 10
+    Vj = 9
     # ecj = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     # ejc = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    ecj = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    # ejc = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    # ejc = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
-    ejc = [-1, -2, -3, -4, -5, -6, -7, -8, -9]
+    # ejc = [0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
+
+    ecj = [-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    ejc = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+
+
     res(Qc, Qj, Vc, Vj, ecj, ejc)
     # Q()
     # pai()
