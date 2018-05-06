@@ -1,8 +1,8 @@
-# a = 5
-# b = 5
+import os
+import pickle
 
 
-def dp(steps):
+def dp(a, b, steps):
     dp, plist, index = {}, {}, {}
     dp[0] = {0: 0} # m[0] = 0
 
@@ -45,7 +45,7 @@ def dp(steps):
 
 
 
-def dp_mn(steps):
+def dp_mn(a, b, steps):
     dp, plist, index = {}, {}, {}
     dp[0] = {(0, 0): 0}  # dp[step][(m, n)] = max profit at (m, n)
     fw = open("./a_b_s_5_2_.txt", "a")
@@ -104,7 +104,46 @@ def dp_mn(steps):
     fw.close()
 
 
+
+def gen_dp_dict(a, b, steps):
+    directory = "./result/%d_%d_%d" % (a, b, steps)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    dp, plist, index = {}, {}, {}
+    dp[0] = {(0, 0): 0}  # dp[step][(m, n)] = max profit at (m, n)
+
+    for i in range(1, steps + 1):
+        dp[i], plist[i], index[i] = {}, {}, {}
+        for ((m, n), v) in dp[i - 1].items(): # (0.35, 0.03), 0.2566
+            for j in range(0, 100):
+                for k in range(0, 100):
+                    pm, pn = j / 100, k / 100
+                    print("a: %d, b: %d, s: %d, i: %d, (pm, pn) = (%.2f, %.2f)" % (a, b, steps, i, pm, pn))
+
+                    mm = 1 - pm / (1 + a * n ** 2)
+                    nn = 1 - pn / (1 + b * m ** 2)
+                    profit = v + (mm - m) * pm + (nn - n) * pn
+
+                    mm, nn = round(mm, 2), round(nn, 2)
+                    if profit >= dp[i].get((mm, nn), 0):
+                        dp[i][(mm, nn)] = profit
+                        plist[i][(mm, nn)] = (pm, pn)
+                        index[i][(mm, nn)] = (m, n)
+
+        print("i:%d len:%d" % (i, len(dp[i])))
+        print(dp[i])
+
+    pickle.dump(dp, open(directory + "/dp.pk", "ab"))
+    pickle.dump(plist, open(directory + "/plist.pk", "ab"))
+    pickle.dump(index, open(directory + "/index.pk", "ab"))
+
+
+
 if __name__ == '__main__':
-    a, b = 5, 2
-    for s in range(1, 21):
-        dp_mn(s)
+    gen_dp_dict(1, 1, 1)
+    # steps = 20
+    # for a in range(1, 11):
+    #     for b in range(1, 11):
+    #         gen_dp_dict(a, b, steps)
+
