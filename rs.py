@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import re
-import pickle
+import numpy as np
+
 
 def save_as_dicts():
-    label = re.compile("a = ([0-9]+), b = ([0-9]+)")
+    label = re.compile("a = ([0-9]+), b = ([0-9]+), steps = ([0-9]+)")
     value = re.compile("[0-9\.]+")
 
     prices_pattern = re.compile("prices: \[(.*)\]")
@@ -14,20 +15,21 @@ def save_as_dicts():
     population_dict = {}
     profits_dict = {}
 
-    a, b, v, cnt = 0, 0, 0, 0
-    with open("./output.txt") as f:
+    a, b, s, v, cnt = 0, 0, 0, 0, 0
+    with open("./different_steps.txt") as f:
         for line in f.readlines():
             if re.match("{.*}", line): continue
 
             elif label.match(line):
                 a = label.match(line).group(1)
                 b = label.match(line).group(2)
+                s = label.match(line).group(3)
 
-                prices_dict[(a, b, "m")] = []
-                prices_dict[(a, b, "n")] = []
-                population_dict[(a, b, "m")] = []
-                population_dict[(a, b, "n")] = []
-                profits_dict[(a, b)] = []
+                prices_dict[(a, b, s, "m")] = []
+                prices_dict[(a, b, s, "n")] = []
+                population_dict[(a, b, s, "m")] = []
+                population_dict[(a, b, s, "n")] = []
+                profits_dict[(a, b, s)] = []
 
                 cnt += 1
 
@@ -39,55 +41,64 @@ def save_as_dicts():
                 prices_list = re.findall("\((.+?), (.+?)\)", prices_list)
 
                 for p in prices_list:
-                    prices_dict[(a, b, "m")].append(float(tuple(p)[0]))
-                    prices_dict[(a, b, "n")].append(float(tuple(p)[1]))
-                print("prices_dict: " + str(prices_dict[(a, b, "m")]))
+                    prices_dict[(a, b, s, "m")].append(float(tuple(p)[0]))
+                    prices_dict[(a, b, s, "n")].append(float(tuple(p)[1]))
+                print("prices_dict[m]: " + str(prices_dict[(a, b, s, "m")]))
 
             elif population_pattern.match(line):
                 population_list = population_pattern.match(line).group(1)
                 population_list = re.findall("\((.+?), (.+?)\)", population_list)
 
                 for p in population_list:
-                    population_dict[(a, b, "m")].append(float(tuple(p)[0]))
-                    population_dict[(a, b, "n")].append(float(tuple(p)[1]))
-                print("population_dict: " + str(population_dict[(a, b, "m")]))
+                    population_dict[(a, b, s, "m")].append(float(tuple(p)[0]))
+                    population_dict[(a, b, s, "n")].append(float(tuple(p)[1]))
+                print("population_dict[m]: " + str(population_dict[(a, b, s, "m")]))
 
             elif profits_pattern.match(line):
                 profits_list = profits_pattern.match(line).group(1).split(", ")
 
                 for p in profits_list:
-                    profits_dict[(a, b)].append(float(p))
-                print("profits_dict: " + str(profits_dict[(a, b)]))
-
+                    profits_dict[(a, b, s)].append(float(p))
+                print("profits_dict: " + str(profits_dict[(a, b, s)]))
 
             print(line, end="")
 
     print(cnt)
-    pickle.dump(prices_dict, open("./prices_dict.pk", "wb"))
-    pickle.dump(population_dict, open("./population_dict.pk", "wb"))
-    pickle.dump(profits_dict, open("./profits_dict.pk", "wb"))
+    return prices_dict, population_dict, profits_dict
 
-def show_prices():
-    times = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    prices_dict = pickle.load(open("./prices_dict.pk", "rb"))
-    fig, ax = plt.subplots(1, figsize=(8, 6))
-    # a = 2
-    # for b in range(1, 11):
-    #     print(prices_dict[(str(a), str(b), "m")])
-    #     ax.plot(times, prices_dict[(str(a), str(b), "m")], c='r', alpha=0.7, linestyle='solid')
-    #     ax.plot(times, prices_dict[(str(a), str(b), "n")], c='b', alpha=0.7, linestyle='solid')
-    ax.plot(times, prices_dict["5", "5", "m"])
-    plt.show()
 
-def test():
-    p = [0.95, 0.95, 0.96, 0.94, 0.95, 0.87, 0.82, 0.74, 0.57, 0.55, 0.44, 0.21, 0.21]
-    times = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+def show_result():
+    prices_dict, population_dict, profits_dict = save_as_dicts()
 
-    fig, ax = plt.subplots(1, figsize=(8, 6))
-    ax.plot(times, p)
-    plt.show()
+    a, b, s = 5, 5, 10
+
+    for s in range(1, 21):
+        fig, (price, crowd, profit) = plt.subplots(3, figsize=(5, 8))
+        price.grid(True)
+        price.set_title("prices")
+        price.set_xticks(np.arange(0, s, 1))
+
+        crowd.grid(True)
+        crowd.set_title("crowds")
+        crowd.set_xticks(np.arange(0, s, 1))
+
+        profit.grid(True)
+        profit.set_title("profits")
+        profit.set_xticks(np.arange(0, s, 1))
+
+        times = []
+        for i in range(s):
+            times.append(i)
+
+        print(prices_dict[(str(a), str(b), str(s), "m")])
+        price.plot(times, prices_dict[(str(a), str(b), str(s), "m")], c='b', alpha=0.7, linestyle='solid')
+        price.plot(times, prices_dict[(str(a), str(b), str(s), "n")], c='r', alpha=0.7, linestyle='solid')
+        crowd.plot(times, population_dict[(str(a), str(b), str(s), "m")], c='b', alpha=0.7, linestyle='solid')
+        crowd.plot(times, population_dict[(str(a), str(b), str(s), "n")], c='r', alpha=0.7, linestyle='solid')
+        profit.plot(times, profits_dict[(str(a), str(b), str(s))], c='g', alpha=0.7, linestyle='solid')
+        plt.show()
+
+
 
 if __name__ == '__main__':
-    # save_as_dicts()
-    show_prices()
-    test()
+    show_result()

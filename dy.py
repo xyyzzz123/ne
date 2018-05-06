@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# 0 - steps - 1; p0, m0, n0 != 0
 
-a = 5
-b = 5
+a, b = 5, 6
 
 
 def pm(i):
@@ -67,17 +67,6 @@ def two_sided():
     plt.show()
 
 
-def test():
-    fig, ax = plt.subplots(1, figsize=(8, 6))
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-
-    n = np.arange(0, 1, 0.0001)
-    m = 1 - pm(0) / (1 + a * n ** 2)
-    ax.plot(n, m)
-
-    plt.show()
-
 
 def curve(steps):
     fig = plt.figure()
@@ -100,7 +89,9 @@ def curve(steps):
     m = f(nlast, i)
     n = g(mlast, i)
 
-    while(abs(m - mlast) > 0.01 and i < steps - 1):
+    while abs(m - mlast) > 0.001 and i < steps:
+        print("i: %d, m: %.2f, n: %.2f" % (i, m, n))
+
         ax.scatter(nlast, m)
         ax.annotate('(%.2f, %.2f)' % (nlast, m), xy=(nlast, m), textcoords='data', fontsize=8)
 
@@ -113,12 +104,9 @@ def curve(steps):
         m = f(nlast, i)
         n = g(mlast, i)
 
-        print("m: %.2f, n: %.2f" % (m, n))
-
     plt.show()
 
 
 if __name__ == '__main__':
     curve(13)
     # two_sided()
-    # test()
