@@ -70,6 +70,7 @@ def cal_profit(steps):
     i = 0
     mlast, nlast = 0, 0
     pai = 0
+    prices, population, profits = [], [], []
 
     while i < steps:
         m = f(nlast, i)
@@ -77,9 +78,40 @@ def cal_profit(steps):
         pai += (m - mlast) * pm(i) + (n - nlast) * pn(i)
         print("i:%d, p:%.2f, m:%.2f, mlast:%.2f, n:%.2f, nlast:%.2f" % (i, pm(i), m, mlast, n, nlast))
 
+        prices.append((pm(i), pn(i)))
+        population.append((m, n))
+        profits.append(pai)
+
         mlast, nlast = m, n
         i += 1
     print("profit = %.4f" % (pai))
+
+    fig, (price, crowd, profit) = plt.subplots(3, figsize=(5, 8))
+    price.grid(True)
+    price.set_title("prices")
+    price.set_xticks(np.arange(0, steps, 1))
+    price.set_ylim(0, 1)
+
+    crowd.grid(True)
+    crowd.set_title("crowds")
+    crowd.set_xticks(np.arange(0, steps, 1))
+    crowd.set_ylim(0, 1)
+
+    profit.grid(True)
+    profit.set_title("profits")
+    profit.set_xticks(np.arange(0, steps, 1))
+    profit.set_ylim(0, 2)
+
+    times = []
+    for i in range(steps):
+        times.append(i)
+
+    price.plot(times, list(zip(*prices))[0], c='b', alpha=0.7, linestyle='solid')
+    price.plot(times, list(zip(*prices))[1], c='r', alpha=0.7, linestyle='solid')
+    crowd.plot(times, list(zip(*population))[0], c='b', alpha=0.7, linestyle='solid')
+    crowd.plot(times, list(zip(*population))[1], c='r', alpha=0.7, linestyle='solid')
+    profit.plot(times, profits, c='g', alpha=0.7, linestyle='solid')
+    plt.show()
 
 
 if __name__ == '__main__':
