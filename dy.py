@@ -93,7 +93,8 @@ def curve(steps):
     m = f(nlast, i)
     n = g(mlast, i)
 
-    while abs(m - mlast) > 0.001 and i < steps:
+    while abs(m - mlast) > 0.01 and i < steps:
+        m, n = f(nlast, i), g(mlast, i)
         print("i: %d, m: %.2f, n: %.2f" % (i, m, n))
 
         ax.scatter(nlast, m)
@@ -105,12 +106,10 @@ def curve(steps):
         mlast = m
         nlast = n
         i += 1
-        m = f(nlast, i)
-        n = g(mlast, i)
 
     plt.show()
 
 
 if __name__ == '__main__':
-    curve(13)
-    # two_sided()
+    # curve(13)
+    two_sided()
