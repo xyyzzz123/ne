@@ -35,59 +35,83 @@ def g(x, i):
 
 
 
-def one_sided():
+def one_sided(): # a = 5, p = 0.96 for two zs; a = 5, p = 0.9 for one z.
     a = 5
     p = 9 / 10
-    x = np.arange(0, 1, 0.005)
-    y = 1 - p / (1 + a * x ** 2)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(x, y)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
+    ax.set_xlabel("z")
+    ax.set_ylabel("$\hat{z}$")
+
+    x = np.arange(0, 1, 0.005)
+    y = 1 - p / (1 + a * x ** 2)
+    ax.plot(x, y, c='r')
 
     k = np.arange(0, 1, 0.005)
     n = k
-    ax.plot(n, k)
+    ax.plot(n, k, c='b')
+
+    equal = []
+    for i in k:
+        if abs(1 - p / (1 + a * i ** 2) - i) < 0.001:
+            equal.append(i)
+
+    if len(equal) != 0:
+        y_val = 1 - p / (1 + a * equal[-1] ** 2)
+        ax.scatter([equal[-1], ], [y_val, ], s=10, c='black')
+        ax.plot([equal[-1], equal[-1]], [0, y_val], c="black", linestyle="--")
+        ax.annotate("$(z^{**}, z^{**})$", xy=(equal[-1], y_val), xycoords='data',
+                    xytext=(+10, -30), textcoords='offset points', fontsize=10,
+                    arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    if len(equal) > 1:
+        y_val = 1 - p / (1 + a * equal[0] ** 2)
+        ax.scatter([equal[0], ], [y_val, ], s=10, c='black')
+        ax.plot([equal[0], equal[0]], [0, y_val], c="black", linestyle="--")
+        ax.annotate("$(z^*, z^*)$", xy=(equal[0], y_val), xycoords='data',
+                    xytext=(-15, +20), textcoords='offset points', fontsize=10,
+                    arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+
 
     plt.show()
 
 
-def two_sided():
-    fig, ax = plt.subplots(1, figsize=(8, 6))
+def two_sided(): # set a, b = 5, 5 to draw the pic. when price = 0.9, set arange to be 0.005; when price = 0.95, set arange to be 0.001
+    fig, ax = plt.subplots(1, figsize=(6, 6))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_xlabel("n")
     ax.set_ylabel("m")
-    # plt.grid(True)
 
-    n = np.arange(0, 1, 0.0001)
+    n = np.arange(0, 1, 0.001)
     m = f(n, 0)
     ax.plot(n, m, c="r")
 
-    m = np.arange(0, 1, 0.0001)
+    m = np.arange(0, 1, 0.001)
     n = g(m, 0)
     ax.plot(n, m, c="b")
 
-    ax.legend(["m", "n"])
+    # ax.legend(["percentage of population in market 1 buying the product", "percentage of population in market 2 buying the product"])
 
     equal = []
     for i in m:
-        # print(i)
-        if abs(f(g(i, 0), 0) - i) < 0.0001:
+        if abs(f(g(i, 0), 0) - i) < 0.001:
             print(i)
             equal.append(i)
 
     if len(equal) != 0:
+        ax.scatter([equal[-1], ], [g(equal[-1], 0), ], s=10, c='black')
         ax.plot([equal[-1], equal[-1]], [0, g(equal[-1], 0)], c="black", linestyle="--")
         ax.annotate("$(z^{**}, z^{**})$", xy=(equal[-1], g(equal[-1], 0)), xycoords='data',
-                    xytext=(+10, -30), textcoords='offset points', fontsize=16,
+                    xytext=(+10, -30), textcoords='offset points', fontsize=10,
                     arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
     if len(equal) > 1:
+        ax.scatter([equal[0], ], [g(equal[0], 0), ], s=10, c='black')
         ax.plot([equal[0], equal[0]], [0, g(equal[0], 0)], c="black", linestyle="--")
         ax.annotate("$(z^*, z^*)$", xy=(equal[0], g(equal[0], 0)), xycoords='data',
-                    xytext=(+10, -30), textcoords='offset points', fontsize=16,
+                    xytext=(+10, -20), textcoords='offset points', fontsize=10,
                     arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
     plt.show()
