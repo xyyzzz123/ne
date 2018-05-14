@@ -1,47 +1,8 @@
 import matplotlib.pyplot as plt
 import random
 import math
+import numpy as np
 from sympy import *
-
-C = 7000
-J = 100
-M = 2000
-N = 400
-Pj = 100
-Pc = 100
-
-
-def dc(j, n):
-    return max(random.random() * j * n / 1000000 * Pc, 0)
-    # if j <= 0: return 0
-    # return max(random.random() * math.log10(j) * n, 0)
-
-def dj(c, m):
-    return max(random.random() * c * m / 10000000000 * Pj, 0)
-    # if c <= 0: return 0
-    # return max(random.random() * math.log10(c) * m, 0)
-
-
-def draw():
-    c = C
-    j = J
-    m = M
-    n = N
-    fig, (ax1, ax2) = plt.subplots(2, figsize=(8, 6))
-    for t in range(1, 1000):
-        ax1.scatter(t, c)
-        ax2.scatter(t, j)
-        print("c: " + str(c) + ", j: " + str(j))
-        print("dc: " + str(dc(j, n)) + ", dj: " + str(dj(c, m)))
-        print()
-
-        tmp_c = c
-        tmp_m = m
-        c += dc(j, n)
-        m -= dc(j, n)
-        j += dj(tmp_c, tmp_m)
-        n -= dj(tmp_c, tmp_m)
-    plt.show()
 
 
 
@@ -62,14 +23,13 @@ def func(Qc, Qj, ecj, ejc, Vc, Vj):
 
 
 def res(Qc, Qj, Vc, Vj, ecj, ejc):
-    fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(4, 10))
-    pc_list = []
-    pj_list = []
-    qc_list = []
-    qj_list = []
-    paic_list = []
-    paij_list = []
-    pai_list = []
+    # fig, (ax1, ax2, ax3) = plt.subplots((221, 222, 223), figsize=(4, 10))
+    plt.figure(figsize=(14, 4))
+    ax1, ax2, ax3 = plt.subplot(131), plt.subplot(132), plt.subplot(133)
+
+    pc_list, pj_list = [], []
+    qc_list, qj_list = [], []
+    paic_list, paij_list, pai_list = [], [], []
 
     for i in range(len(ecj)):
         res = func(Qc, Qj, ecj[i], ejc[i], Vc, Vj)
@@ -98,38 +58,44 @@ def res(Qc, Qj, Vc, Vj, ecj, ejc):
         print()
 
 
-    ax1.set_title("prices")
     ax1.plot(ecj, pc_list, c='r', alpha=0.7, linestyle='solid')
     ax1.plot(ecj, pj_list, c='b', alpha=0.7, linestyle='solid')
-    ax2.set_title("quantities")
+    ax1.legend(["$p_{c}$", "$p_{j}$"])
+    ax1.set_xlabel("NETWORK EFFECT")
+    ax1.set_ylabel("PRICES")
+    ax1.set_xticks(np.arange(ecj[0], ecj[-1] + 0.1, 0.2))
+    ax1.set_ylim(0, 10)
+
     ax2.plot(ecj, qc_list, c='r', alpha=0.7, linestyle='solid')
     ax2.plot(ecj, qj_list, c='b', alpha=0.7, linestyle='solid')
-    ax3.set_title("profits")
+    ax2.legend(["$q_{c}$", "$q_{j}$"])
+    ax2.set_xlabel("NETWORK EFFECT")
+    ax2.set_ylabel("QUANTITIES")
+    ax2.set_xticks(np.arange(ecj[0], ecj[-1] + 0.1, 0.2))
+
     ax3.plot(ecj, paic_list, c='r', alpha=0.7, linestyle='solid')
     ax3.plot(ecj, paij_list, c='b', alpha=0.7, linestyle='solid')
     ax3.plot(ecj, pai_list, c='g', alpha=0.7, linestyle='solid')
+    ax3.legend(["$\pi_{c}$", "$\pi_{j}$", "$\pi$"])
+    ax3.set_xlabel("NETWORK EFFECT")
+    ax3.set_ylabel("PROFITS")
+    ax3.set_xticks(np.arange(ecj[0], ecj[-1] + 0.1, 0.2))
 
     plt.show()
 
 
 
-# def main():
-#     draw()
-
 if __name__ == "__main__":
-    # func(0, 0, 0, 0, 0, 0)
+
     Qc = 100 # 100, 10, 10, 60
     Qj = 90
     Vc = 10
     Vj = 9
-    # ecj = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    ecj = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     # ejc = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    # ejc = [0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
+    ejc = [0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
 
-    ecj = [-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    ejc = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-
+    # ecj = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    # ejc = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 
     res(Qc, Qj, Vc, Vj, ecj, ejc)
-    # Q()
-    # pai()
