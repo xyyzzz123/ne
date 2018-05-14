@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 # 0 - steps - 1; p0, m0, n0 != 0
 
-a, b = 9, 1
+a, b = 5, 5
 
 
 def pm(i):
-    # return 0.9
+    return 0.95
     p = [0.99, 0.99, 0.99, 0.8, 0.99, 0.73, 0.99, 0.99, 0.99, 0.98, 0.98, 0.96, 0.99] # best for 9_1_20
     p = [0.99, 0.99, 0.99, 0.8, 0.99, 0.73, 0.99, 0.99, 0.99, 0.98, 0.98, 0.96, 0.99]
     # p = [0.88, 0.85, 0.9, 0.92, 0.93, 0.94, 0.94, 0.94, 0.93, 0.82, 0.62, 0.5, 0.25]
@@ -17,7 +17,7 @@ def pm(i):
 
 
 def pn(i):
-    # return 0.9
+    return 0.95
     p = [0.88, 0.66, 0.92, 0.75, 0.93, 0.91, 0.67, 0.6, 0.52, 0.38, 0.22, 0.12, 0.06] # best for 9_1_20
     p = [0.88, 0.66, 0.92, 0.75, 0.93, 0.91, 0.67, 0.6, 0.88, 0.78, 0.89, 0.95, 0.86]
     # p = [0.88, 0.85, 0.9, 0.92, 0.93, 0.94, 0.94, 0.94, 0.93, 0.82, 0.62, 0.5, 0.25]
@@ -58,15 +58,37 @@ def two_sided():
     fig, ax = plt.subplots(1, figsize=(8, 6))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    plt.grid(True)
+    ax.set_xlabel("n")
+    ax.set_ylabel("m")
+    # plt.grid(True)
 
-    n = np.arange(0, 1, 0.005)
-    m = 1 - pm(0) / (1 + a * n ** 2)
-    ax.plot(n, m)
+    n = np.arange(0, 1, 0.0001)
+    m = f(n, 0)
+    ax.plot(n, m, c="r")
 
-    m = np.arange(0, 1, 0.005)
-    n = 1 - pn(0) / (1 + b * m ** 2)
-    ax.plot(n, m)
+    m = np.arange(0, 1, 0.0001)
+    n = g(m, 0)
+    ax.plot(n, m, c="b")
+
+    ax.legend(["m", "n"])
+
+    equal = []
+    for i in m:
+        # print(i)
+        if abs(f(g(i, 0), 0) - i) < 0.0001:
+            print(i)
+            equal.append(i)
+
+    if len(equal) != 0:
+        ax.plot([equal[-1], equal[-1]], [0, g(equal[-1], 0)], c="black", linestyle="--")
+        ax.annotate("$(z^{**}, z^{**})$", xy=(equal[-1], g(equal[-1], 0)), xycoords='data',
+                    xytext=(+10, -30), textcoords='offset points', fontsize=16,
+                    arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    if len(equal) > 1:
+        ax.plot([equal[0], equal[0]], [0, g(equal[0], 0)], c="black", linestyle="--")
+        ax.annotate("$(z^*, z^*)$", xy=(equal[0], g(equal[0], 0)), xycoords='data',
+                    xytext=(+10, -30), textcoords='offset points', fontsize=16,
+                    arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
 
     plt.show()
 
@@ -93,7 +115,7 @@ def curve(steps):
     m = f(nlast, i)
     n = g(mlast, i)
 
-    while abs(m - mlast) > 0.01 and i < steps:
+    while i < steps:
         m, n = f(nlast, i), g(mlast, i)
         print("i: %d, m: %.2f, n: %.2f" % (i, m, n))
 
@@ -103,13 +125,15 @@ def curve(steps):
         ax.scatter(n, mlast)
         ax.annotate('(%.2f, %.2f)' % (n, mlast), xy=(n, mlast), textcoords='data', fontsize=8)
 
-        mlast = m
-        nlast = n
+        if abs(m - mlast) < 0.01: break
+        mlast, nlast = m, n
         i += 1
+
 
     plt.show()
 
 
 if __name__ == '__main__':
+    # one_sided()
     # curve(13)
     two_sided()
